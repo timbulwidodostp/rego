@@ -1,0 +1,89 @@
+{smcl}
+{* 12sep2012}{...}
+{cmd:help rego}
+{hline}
+
+{title:Title}
+
+    {hi:rego} {hline 2} Linear regression with Shapley and Owen decomposition of R-squared (for Stata 9+)
+
+
+{title:Syntax}
+
+{p 8 17 2}
+{cmdab:rego}
+{varlist}
+{ifin}
+[{cmd:,} {it:options}]
+
+{synoptset 20 tabbed}{...}
+{synopthdr}
+{synoptline}
+{syntab:Main}
+{synopt:{opt d:etail}}calculate Owen values for individual variables{p_end}
+{synopt:{opth v:ce(vcetype)}}determine what standard errors are computed:
+{cmdab:ols}, {cmdab:r:obust}, {cmdab:cl:uster} {it:clustervar}. {p_end}
+{synopt:{opt n:operc}}do not display Owen/Shapley values as percentages of overall R-squared{p_end}
+{synopt:{opt force}}perform calculations even if it would take a lot of time{p_end}
+{syntab:Bootstrap}
+{synopt:{opt b:sreps}}number of bootstrap replications{p_end}
+{synopt:{opt l:evel}}confidence level, in %{p_end}
+{synoptline}
+{p2colreset}{...}
+{p 4 6 2}
+{help xi} (Stata 9+) and time series operators (Stata 11+) may be used, 
+but factor variables are not supported.{p_end}
+
+{title:Description}
+
+{pstd}
+{cmd:rego} uses results from {help regress} and decomposes the share of explained variance (measured by R-squared)  
+into contributions by indvidual regressor variables or groups of regressor variables. 
+The former case is calculated as Owen value, the latter as Shapley value (for groups). 
+In the special case that each group consists of only one regressor, both quantities coincide. 
+If not suppressed by the {cmd:noperc} option, the contributions are displayed as percentages of overall R-squared.{p_end} 
+{pstd}
+
+{title:Remarks}
+
+{pstd}
+Groups of regressors are specified with the help of the backslash ("{cmd:\}") symbol. It must be placed in the varlist after the last variable of each group. 
+If no groups are defined, {cmd:rego} assumes that each regressor belongs to a group of its own and calculates the "traditional" Shapley value. 
+
+{pstd}
+Instead of using the {cmd:detail} option after the comma, the user may also specify "{cmd:(detail)}" (without quotation marks) inside a variable group. This has the advantage that a decomposition is only carried out within groups of interest.
+
+{pstd}
+If no only Shapley values are computed, the (non-bootstrap) output includes a column for standardized regression coefficients.  
+
+{pstd}
+Caution: Computational effort increases exponentially in the number of groups and (if the {cmd:detail} option is specified) in the number
+of variables per group. The program will fall back to standard regression output and stop if the number
+of groups exceeds 12 or the number of variables in a "detailed" group exceeds 12. The {cmd:force} option
+overrides this behavior.{p_end} 
+
+{title:Examples}
+
+{phang}{cmd:. sysuse auto}{p_end} 
+{phang}{cmd:. rego mpg weight length displ gear foreign}{p_end} 
+{phang}{cmd:. rego mpg weight length \ displ gear \ foreign, vce(robust) detail}{p_end} 
+{phang}{cmd:. rego mpg weight length \ displ gear \ foreign, vce(robust) detail noperc bs(2000) l(90)}{p_end} 
+
+{phang}{cmd:. webuse nhanes2f}{p_end}
+
+{phang}{cmd:. generate bmi =  weight * (height/100)^(-2)}{p_end}
+
+{phang}{cmd:. xi: rego bpsystol i.race \ age age2 \ i.region i.smsa \ diabetes \ bmi \ (detail) albumin vitaminc zinc copper lead if female==1, vce(cluster location)}{p_end}
+
+
+{title:References}
+
+{phang}Huettner, Frank; Sunder, Marco (2012): Axiomatic arguments for decomposing goodness of fit according to Shapley and Owen values. Electronic Journal of Statistics 6, 1239-1250.{p_end}
+
+{title:Also see}
+
+{phang}On-line:   help for {help shapley} (if installed){p_end}
+
+
+
+
